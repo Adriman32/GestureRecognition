@@ -1,0 +1,80 @@
+close all
+clear
+clc
+
+digitDatasetPath = fullfile("C:\Users\adria\Documents\.minecraft\School\Fall 2020\ECE 4580\Final Project\Images\test");
+imds = imageDatastore(digitDatasetPath, ...
+    'IncludeSubfolders',true,'LabelSource','foldernames');
+% [imdsVal imdsLoc] = read(imds);
+
+figure;
+perm = randperm(1200,9);
+
+for i = 1:9
+    subplot(3,3,i);
+    imshow(imds.Files{perm(i)});
+    title("Label: " + char(imds.Labels(perm(i))));
+end
+
+allFiles = countEachLabel(imds);
+numFiles = size(allFiles) * table2array(allFiles(1,2));
+numFiles = numFiles(1,1);
+
+
+for i = 1:numFiles
+    manImg = imageManipulator(imread(imds.Files{i}));
+    imwrite(manImg,imds.Files{i});
+end
+
+
+figure;
+for i = 1:9
+    subplot(3,3,i);
+    imshow(imds.Files{perm(i)});
+    title("Label: " + char(imds.Labels(perm(i))));
+end
+
+
+
+% labelCount = countEachLabel(imds);
+numTrainFiles = 150;
+[imdsTrain, imdsValidation] = splitEachLabel(imds,numTrainFiles,'randomize');
+
+layers = [
+%     Image size
+    imageInputLayer([382 312 3])
+    
+    convolution2dLayer(3,8,'Padding','same')
+    batchNormalizationLayer
+    reluLayer
+    
+    maxPooling2dLayer(2,'Stride',2)
+    
+    convolution2dLayer(3,16,'Padding','same')
+    batchNormalizationLayer
+    reluLayer
+    
+    maxPooling2dLayer(2,'Stride',2)
+    
+    convolution2dLayer(3,32,'Padding','same')
+    batchNormalizationLayer
+    reluLayer
+    
+%     fullyConnected layer value is how many categories it must find
+    fullyConnectedLayer(6)
+    softmaxLayer
+    classificationLayer];
+
+options = trainingOptions('sgdm', ...
+    'InitialLearnRate',0.01, ...
+    'MaxEpochs',10, ...
+    'Shuffle','every-epoch', ...
+    'ValidationData',imdsValidation, ...
+    'ValidationFrequency',5, ...
+    'Verbose',true, ...
+    'Plots','training-progress');
+
+% testNet = trainNetwork(imdsTrain,layers,options);
+% gestureClassifier = testNet;
+% save gestureClassifier;
+%  
