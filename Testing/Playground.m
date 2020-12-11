@@ -1,3 +1,32 @@
+close all
+clear
+clc
+
+IM = imread("..\Images\gestures\5\download.jpg");
+IM = rgb2gray(IM);
+IM = imgaussfilt(IM,2);
+BI = imbinarize(IM);
+BI = imresize(BI,[382 312]);
+
+figure;
+subplot(1,2,1);
+imshow(IM);
+title("Original Image");
+subplot(1,2,2);
+imshow(BI);
+title("Binary Image");
+
+load ("..\Trained Networks\gestureClassifier");
+
+calcLabel = classify(gestureClassifier,BI)
+BI = imread("..\Images\test\5\5.78.png");
+calcLabel = classify(gestureClassifier,BI)
+
+
+
+
+
+
 % %
 % close all
 % clear

@@ -1,3 +1,4 @@
+% Creates Convolutional Neural Network
 close all
 clear
 clc
@@ -87,6 +88,6 @@ options = trainingOptions('sgdm', ...
     'Verbose',true, ...
     'Plots','training-progress');
 
-testNet = trainNetwork(imdsTrain,layers,options);
-gestureClassifier = testNet;
+myNet = trainNetwork(imdsTrain,layers,options);
+gestureClassifier = myNet;
 save ("Trained Networks\gestureClassifier");

@@ -1,3 +1,4 @@
+% Creates database of images from webcam
 close all
 clear
 clc
