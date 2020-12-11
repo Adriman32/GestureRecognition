@@ -3,7 +3,7 @@ clear
 clc
 
 % Creates Image Datastore from files
-digitDatasetPath = fullfile("C:\Users\adria\Documents\.minecraft\School\Fall 2020\ECE 4580\Final Project\Images\test");
+digitDatasetPath = fullfile("Images\test");
 imds = imageDatastore(digitDatasetPath, ...
     'IncludeSubfolders',true,'LabelSource','foldernames');
 
@@ -43,7 +43,7 @@ numTrainFiles = 150;
 
 layers = [
 %     Image size
-    imageInputLayer([382 312 3])
+    imageInputLayer([382 312 1])
     
     convolution2dLayer(3,8,'Padding','same')
     batchNormalizationLayer
@@ -61,6 +61,18 @@ layers = [
     batchNormalizationLayer
     reluLayer
     
+    maxPooling2dLayer(2,'Stride',2)
+    
+    convolution2dLayer(3,64,'Padding','same')
+    batchNormalizationLayer
+    reluLayer
+    
+    maxPooling2dLayer(2,'Stride',2)
+    
+    convolution2dLayer(3,128,'Padding','same')
+    batchNormalizationLayer
+    reluLayer
+    
 %     fullyConnected layer value is how many categories it must find
     fullyConnectedLayer(6)
     softmaxLayer
@@ -71,11 +83,10 @@ options = trainingOptions('sgdm', ...
     'MaxEpochs',10, ...
     'Shuffle','every-epoch', ...
     'ValidationData',imdsValidation, ...
-    'ValidationFrequency',5, ...
+    'ValidationFrequency',2, ...
     'Verbose',true, ...
     'Plots','training-progress');
 
-% testNet = trainNetwork(imdsTrain,layers,options);
-% gestureClassifier = testNet;
-% save gestureClassifier;
-%  
+testNet = trainNetwork(imdsTrain,layers,options);
+gestureClassifier = testNet;
+save ("Trained Networks\gestureClassifier");
