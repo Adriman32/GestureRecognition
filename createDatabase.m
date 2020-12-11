@@ -21,16 +21,15 @@ thisBB = [ 870 27.5 311 381];
 % thisBB = [28.5 27.5 311 381];
 rectangle('Position', [thisBB(1),thisBB(2),thisBB(3),thisBB(4)], 'EdgeColor','g','LineWidth',2 )
 
-version = 19;
+version = 2;
 figure;
-title("Test");
 for i = 0:5
-    fileName = "Images\test\" + i +"\";
+    fileName = "Images\gestures\" + i +"\";
     pause(5);
     for j = 0:9
         capturedImage = snapshot(cam);
         croppedImage = imcrop(capturedImage,thisBB);
-%         imwrite(croppedImage, fileName + i + "." + version + j +".png")
+        imwrite(croppedImage, fileName + "Left." + version + j +".png")
     end
     
     subplot(2,3,(i+1));
