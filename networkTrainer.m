@@ -4,12 +4,16 @@ clear
 clc
 
 % Creates Image Datastore from files
-digitDatasetPath = fullfile("Images\test");
+digitDatasetPath = fullfile("Images\gestures");
 imds = imageDatastore(digitDatasetPath, ...
     'IncludeSubfolders',true,'LabelSource','foldernames');
 
+allFiles = countEachLabel(imds);
+numFiles = size(allFiles) * table2array(allFiles(1,2));
+numFiles = numFiles(1,1);
+
 % Creates random numbers to display 9 random images.
-randI = randperm(1200,9);
+randI = randperm(numFiles,9);
 figure;
 for i = 1:9
     subplot(3,3,i);
@@ -25,10 +29,11 @@ numFiles = numFiles(1,1);
 % Performs Image Manipulation
 for i = 1:numFiles
     manImg = imageManipulator(imread(imds.Files{i}));
+    manImg = imresize(manImg, [100 100]);
     imwrite(manImg,imds.Files{i});
 end
 
-% Displays 
+% Displays Images Post-Manipulation
 figure;
 for i = 1:9
     subplot(3,3,i);
@@ -37,44 +42,41 @@ for i = 1:9
 end
 
 
-
 % labelCount = countEachLabel(imds);
-numTrainFiles = 150;
+numTrainFiles = (numFiles/6)*0.8;
 [imdsTrain, imdsValidation] = splitEachLabel(imds,numTrainFiles,'randomize');
+imdsTrain=augmentedImageDatastore([100 100], imdsTrain,'ColorPreprocessing','rgb2gray');
+imdsValidation=augmentedImageDatastore([100 100], imdsValidation,'ColorPreprocessing','rgb2gray');
+
 
 layers = [
-%     Image size
-    imageInputLayer([382 312 1])
+    % Input Layer
+    imageInputLayer([100 100 1])
     
+    % Hidden Layer 1
     convolution2dLayer(3,8,'Padding','same')
     batchNormalizationLayer
     reluLayer
-    
     maxPooling2dLayer(2,'Stride',2)
     
+    % Hidden Layer 2
     convolution2dLayer(3,16,'Padding','same')
     batchNormalizationLayer
     reluLayer
-    
     maxPooling2dLayer(2,'Stride',2)
     
+    % Hidden Layer 3
     convolution2dLayer(3,32,'Padding','same')
     batchNormalizationLayer
     reluLayer
-    
     maxPooling2dLayer(2,'Stride',2)
     
+    % Hidden Layer 4
     convolution2dLayer(3,64,'Padding','same')
     batchNormalizationLayer
     reluLayer
     
-    maxPooling2dLayer(2,'Stride',2)
-    
-    convolution2dLayer(3,128,'Padding','same')
-    batchNormalizationLayer
-    reluLayer
-    
-%     fullyConnected layer value is how many categories it must find
+    % Output Layer
     fullyConnectedLayer(6)
     softmaxLayer
     classificationLayer];
@@ -90,4 +92,4 @@ options = trainingOptions('sgdm', ...
 
 myNet = trainNetwork(imdsTrain,layers,options);
 gestureClassifier = myNet;
-save ("Trained Networks\gestureClassifier");
+save ("Trained Networks\testClassifier");

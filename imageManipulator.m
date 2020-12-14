@@ -3,16 +3,17 @@ function IM = imageManipulator(H)
     if(x ~= 1)
         H = rgb2gray(H);
     end
-    gaussImg = imgaussfilt(H,4);
+    gaussImg = imgaussfilt(H,5);
     threshImg = zeros(r,c);
     
     for i = 1:r
         for j = 1:c
-            if(gaussImg(i,j) < 130)
+            if(gaussImg(i,j) < 120)
                 threshImg(i,j) = 255;
             end
         end
     end
+    threshImg = imfill(threshImg);
     IM = threshImg;
 end
     
